@@ -94,11 +94,13 @@ module.exports = function ( grunt ) {
 
                     for ( var key in result.coordinates ) {
 
-                        var newKey = path.join( process.cwd(), key ).toLowerCase();
+                        // var newKey = path.join( process.cwd(), key ).toLowerCase();
+                        var newKey = key.toLowerCase();
 
                         imageReplaces[ newKey ] = tmpResult[ key ];
 
-                        imageReplaces[ newKey ].sprite = path.join( process.cwd(), sprite );
+                        // imageReplaces[ newKey ].sprite = path.join( process.cwd(), sprite );
+                        imageReplaces[ newKey ].sprite = sprite;
 
                     }
 
@@ -115,7 +117,8 @@ module.exports = function ( grunt ) {
         var _insertSprites = function ( css ) {
 
             var regex     = new RegExp( 'background-image:[\\s]?url\\(["\']?(?!http[s]?|/)([\\w\\d\\s!./\\-\\_]*\\.[\\w?#]+)["\']?\\)[^;]*;', 'ig' ),
-                dir       = path.join( process.cwd(), path.dirname( css.src ) ),
+                // dir       = path.join( process.cwd(), path.dirname( css.src ) ),
+                dir       = path.dirname( css.src ),
                 data      = grunt.file.read( css.src ),
                 base      = ( css.base ) ? path.join( dir, css.base ) : false,
                 resources = data.match( regex ),
@@ -137,11 +140,20 @@ module.exports = function ( grunt ) {
 
                         img = imageReplaces[ absolutePath ];
 
-                        newPath = ( base ) ? path.relative( base, img.sprite ) : path.relative( dir, img.sprite );
+                        if ( css.root ) {
+
+                            newPath = img.sprite.replace( css.root, '' );
+
+                        } else {
+
+                            newPath = ( base ) ? path.relative( base, img.sprite ) : path.relative( dir, img.sprite );
+
+                        }
 
                         newPath = newPath.replace( /\\/ig, '/' );
 
                         data = data.replace( resources[x], 'background-image: url("' + newPath + '"); background-position: -' +  img.x + 'px -' + img.y + 'px;' );
+
                     }
 
                 }
